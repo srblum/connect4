@@ -1,0 +1,43 @@
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+<script
+  src="https://code.jquery.com/jquery-3.2.1.min.js"
+  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+  crossorigin="anonymous"></script>
+
+
+<script type="text/javascript">
+	window.onload=function(){
+		console.log('{{board}}');
+	}
+	function updateBoard(data){
+		console.log(data);
+	}
+
+	function move(c){
+		$.ajax({
+			method: 'POST',
+			url: '/move',
+			contentType:"application/json; charset=utf-8",
+			data: '{"column":'+c+'}',
+			success: updateBoard
+		})
+	}
+
+	function restart(){
+		$.ajax({
+			method: 'POST',
+			url: '/restart',
+			success: updateBoard
+		})
+	}
+</script>
+<span onclick=move(0)>0</span>
+<span onclick=move(1)>1</span>
+<span onclick=move(2)>2</span>
+<span onclick=move(3)>3</span>
+<span onclick=move(4)>4</span>
+<span onclick=move(5)>5</span>
+<span onclick=move(6)>6</span>
+<br>
+<button onclick=restart()>Restart</button>
+
