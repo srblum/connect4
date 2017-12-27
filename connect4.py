@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 class Connect4:
     def __init__(self, row = 6, column = 7):
       self.row = row 
@@ -63,7 +65,7 @@ class Connect4:
     
     def print_board2(self):
       for row in self.board:
-        print '|'.join(row)
+        print ('|'.join(row))
     
     def check_win(self,row,move):
       # Future work: Refactor everything with metaprogramming so this section doesn't have so much repeated code. 
@@ -151,15 +153,15 @@ class Connect4:
       
     def win_message(self):
       self.print_board()
-      print 'Victory!'
+      print ('Victory!')
       if self.player==0:
-        print self.player1name + " Wins!"
+        print (self.player1name + " Wins!")
       else:
-        print self.player2name + ' Wins!'
+        print (self.player2name + ' Wins!')
     
     def draw_message(self):
       self.print_board()
-      print "Draw!"
+      print ("Draw!")
     
     def on_board(self,s):
       y, x = s[0], s[1]
@@ -176,7 +178,10 @@ class Connect4:
       """
       string=''
       for r in self.board:
-        string+=''.join(r)
+        string += ''.join(r)
+        #string += '\n'
+      #answer = "\n".join('|'.join(row) for row in self.board)
+      #return answer
       return string
 
 
