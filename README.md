@@ -26,11 +26,18 @@ The server should now be listening on port 5000.  Just navigate to localhost:500
 
 ## ToDo
 
-* Make a responsive and aesthetic GUI
-* Include win-checking in existing "move" server endpoint
-* Handle move validation client-side, not server-side
-* Add game ID feature that allows remote multiplayer
-* Implement text box for game messages as well as user chat
+* Make a responsive and aesthetic GUI (Sean)
+* Include win-checking in existing "move" server endpoint (Linch)
+* Handle move validation client-side, not server-side (Linch)
+* Add game ID feature that allows remote multiplayer (Linch)
+  * Add "create room" button and associated JS and flask functions
+  * Generates random URL, which is passed back to the client and displayed for sharing
+  * Create new instance of connect4 python class with unique ID associated with URL
+  * Modify /move endpoint to link game URL with connect4 object ID
+* Add support for spectators and player1/2 selection
+* Implement text box for game messages as well as user chat (Sean)
+* Figure out hosting
+
 
 
 :christmas_tree:

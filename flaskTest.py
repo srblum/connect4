@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from __future__ import print_function
-
 from flask import Flask, render_template, request
 from connect4 import Connect4
 
