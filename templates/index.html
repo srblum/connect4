@@ -1,43 +1,185 @@
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
-<script
-  src="https://code.jquery.com/jquery-3.2.1.min.js"
-  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-  crossorigin="anonymous"></script>
+<head>
+	<!-- jQuery -->
+	<script
+	  src="https://code.jquery.com/jquery-3.2.1.min.js"
+	  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+	  crossorigin="anonymous"></script>
 
 
-<script type="text/javascript">
-	window.onload=function(){
-		console.log('{{board}}');
-	}
-	function updateBoard(data){
-		console.log(data);
-	}
+	<script>
 
-	function move(c){
-		$.ajax({
-			method: 'POST',
-			url: '/move',
-			contentType:"application/json; charset=utf-8",
-			data: '{"column":'+c+'}',
-			success: updateBoard
-		})
-	}
+		//
+		//START SERVER CODE
+		//
 
-	function restart(){
-		$.ajax({
-			method: 'POST',
-			url: '/restart',
-			success: updateBoard
-		})
-	}
-</script>
-<span onclick=move(0)>0</span>
-<span onclick=move(1)>1</span>
-<span onclick=move(2)>2</span>
-<span onclick=move(3)>3</span>
-<span onclick=move(4)>4</span>
-<span onclick=move(5)>5</span>
-<span onclick=move(6)>6</span>
+		function updateBoard(data){
+			console.log("Received call to updateBoard (ajax response function.)");
+			console.log(data);
+			//Update the CanvasState object
+			//by calling drawChip with the row, column, and color
+
+			// cs.move(row,column,color);
+		}
+
+		function clearBoard(data){
+			cs.restart();
+		}
+
+		function move(c){
+			console.log("Received call to move (ajax request function)");
+			$.ajax({
+				method: 'POST',
+				url: '/move',
+				contentType:"application/json; charset=utf-8",
+				data: '{"column":'+c+'}',
+				success: updateBoard
+			})
+		}
+
+		function restart(){
+			$.ajax({
+				method: 'POST',
+				url: '/restart',
+				success: clearBoard
+			})
+		}
+
+		//
+		//END SERVER CODE
+		//
+
+
+		//
+		//START GUI CODE
+		//
+
+		function getBoardPartition(offsetX){
+			//Given an x-coordinate within a 490 pixel board
+			//returns a 0-based partition index
+			if(offsetX<70){
+					return 0;
+				}else if(offsetX<140){
+					return 1;
+				}else if(offsetX<210){
+					return 2;
+				}else if(offsetX<280){
+					return 3;
+				}else if(offsetX<350){
+					return 4;
+				}else if(offsetX<420){
+					return 5;
+				}else if(offsetX<=490){
+					return 6;
+				}
+		}
+
+		function getRowPixel(row){
+			rowZero=76;
+			increment=70;
+			return rowZero+row*increment
+		}
+
+		function getColumnPixel(column){
+			columnZero=6;
+			increment=70;
+			return columnZero+column*increment
+		}
+
+		function CanvasState(canvas){
+			console.log("CanvasState initializing.")
+
+			this.ctx = canvas.getContext('2d');
+			this.width=canvas.width;
+			this.height=canvas.height;
+			this.board=document.createElement('img');
+			this.board.src="static/board.png";
+			this.mouseColumn=-1;
+
+			//'That' is a reference to 'this' for the eventListeners' sake,
+			//who will have a different 'this' when called
+			var that=this;
+
+			canvas.addEventListener('mousemove',function(e){
+				//Move the hoverchip around based on e.offsetX
+				var column=getBoardPartition(e.offsetX);
+				if(column!=that.mouseColumn){
+					that.mouseColumn=column;
+					var x=getColumnPixel(column);
+					var y=6;
+					var chip=document.createElement('img');
+					chip.src="static/red-chip.png";
+					that.ctx.clearRect(0,0,490,67);
+					chip.onload=function(){
+						that.ctx.drawImage(chip,x,y,58,58);
+					}
+				}
+			},true);
+
+			canvas.addEventListener('mouseout',function(e){
+				//Get rid of the hoverchip
+				that.ctx.clearRect(0,0,490,67);
+			},true);
+
+			canvas.addEventListener('click',function(e){
+				//call the move function based on e.offsetX
+				console.log("Received call to 'click' eventListener in CanvasState.");
+				move(getBoardPartition(e.offsetX));
+			},true);
+
+			this.board.onload=function(){
+				that.ctx.drawImage(that.board,0,0);
+			}
+		}
+
+		CanvasState.prototype.drawChip=function(row,column,color){
+			//Given an integer row, an integer column, and a string color ('red' or 'yellow') draws a chip of the appropriate color in the
+			//lowest unoccupied space in that column.
+			ctx=this.ctx;
+			console.log("Received call to CanvasState.move to put " +color+ " chip in column "+column);
+			var x=getColumnPixel(column);
+			var y=getRowPixel(row);
+			var chip=document.createElement('img');
+			chip.src="static/"+color+"-chip.png";
+			chip.onload=function(){
+				ctx.drawImage(chip,x,y,58,58);
+			}
+		}
+
+		CanvasState.prototype.restart=function(){
+			//Restarting clears the canvas and just redraws the board
+			console.log("Received call to CanvasState.restart.")
+			this.ctx.clearRect(0,0,this.width,this.height);
+			this.ctx.drawImage(this.board,0,0);
+		}
+
+		function init(){
+			var canvas = document.getElementById('canvasID');
+			cs = new CanvasState(canvas);
+			canvas.focus();
+		}
+
+		//
+		//END GUI CODE
+		//
+
+	</script>
+
+</head>
+<body onload=init();>
+
+<!-- Button for "Create new game"
+
+This will create a new game instance
+with a shareable URL
+
+ -->
+
+<canvas id='canvasID' width=490 height=490></canvas>
+
 <br>
 <button onclick=restart()>Restart</button>
 
+<!-- This hidden image is a temporary workaround to delay the body onload event -->
+<img src="static/board.png" style="display: none;">
+
+</body>
